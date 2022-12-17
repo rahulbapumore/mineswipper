@@ -16,6 +16,7 @@ let m = 10;
     {
         m = 24;
     }
+
     document.querySelector(".body").innerHTML = "";
     play();
 });
