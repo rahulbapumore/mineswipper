@@ -1,45 +1,42 @@
-let n=10;
-let m = 10;
-(document.querySelector("select")).addEventListener("change",(event)=>{
+let bombs = 10;
+let grid = 10;
+document.getElementById("level").addEventListener("change",(event)=>{
     
-    n = parseInt(document.querySelector("select").value); 
-    if(n == 10)
-    {
-        m = 10;
-
+    bombs = parseInt(document.querySelector("select").value); 
+    if(bombs == 10){
+        grid = 10;
     }
-    else if(n == 20)
-    {
-        m = 18;
+    else if(bombs == 40){
+        grid = 18;
     }
-    else if(n == 40)
-    {
-        m = 24;
+    else if(bombs == 100){
+        grid = 24;
     }
-
     document.querySelector(".body").innerHTML = "";
     play();
+    //flag();
 });
 
 document.querySelector("button").addEventListener("click",(event)=>
 {
     document.querySelector(".body").innerHTML = "";
     play();
+    //flag();
 });
-let arr = Array(m);
-let level=1;
+let arr = Array(grid);
 const gameBoard=document.querySelector("body");
 let set=[];
 play();
+//flag();
 function play(){
 
-    for (var i = 0; i < m; i++) {
-        arr[i] = Array(m).fill(0);
+    for (var i = 0; i < grid; i++) {
+        arr[i] = Array(grid).fill(0);
     }
     set=new Set();
-    for(let i=0;i<n;i++){
-        let row=parseInt(Math.random()*m);
-        let col=parseInt(Math.random()*m);
+    for(let i=0;i<bombs;i++){
+        let row=parseInt(Math.random()*grid);
+        let col=parseInt(Math.random()*grid);
         if(set.has([row,col])){
             i--;
         }else{
@@ -56,7 +53,7 @@ function play(){
         for(let i=0;i<dir.length;i++){
             let r=row+dir[i][0];
             let c=col+dir[i][1];
-            if(r>=0 && c>=0 && r<m && c<m && arr[r][c]!=-1){
+            if(r>=0 && c>=0 && r<grid && c<grid && arr[r][c]!=-1){
                 arr[r][c]= arr[r][c]+1;
             }
         }
@@ -65,21 +62,20 @@ function play(){
     console.log(arr);
     let mainDiv=document.createElement("div");
     mainDiv.className="mainDiv";
-    for(let i=0;i<m;i++){
+    for(let i=0;i<grid;i++){
         let rowDiv=document.createElement("div");
         rowDiv.className="rowDiv";
-        for(j=0;j<m;j++){
+        for(j=0;j<grid;j++){
             let div=document.createElement("div");
             div.setAttribute("row",i);
             div.setAttribute("col",j);
-            if((i+j) % 2 == 0)
-            {
+            if((i+j) % 2 == 0){
                 div.style.opacity = "0.5";
             }
-            
             div.style.backgroundColor="greenyellow";
             div.className="cell";
             div.setAttribute("onclick","callBack(event)")
+            div.setAttribute("flag","false");
             rowDiv.appendChild(div);
         }
         mainDiv.appendChild(rowDiv);
@@ -99,14 +95,15 @@ function dfs(arr,row,col,visited){
         for(let i=0;i<dir.length;i++){
             let r=parseInt(row)+parseInt(dir[i][0]);
             let c=parseInt(col)+parseInt(dir[i][1]);
-            console.log(r,c);
-            if(r>=0 && c>=0 && r<m && c<m  && arr[r][c]==0 && !visited[r][c]){
+            //console.log(r,c);
+            if(r>=0 && c>=0 && r<grid && c<grid  && arr[r][c]==0 && !visited[r][c]){
                 dfs(arr,r,c,visited);
             }else{
-                if(r>=0 && c>=0 && r<m && c<m){
+                if(r>=0 && c>=0 && r<grid && c<grid){
                     if(arr[r][c]==0){
 
                         document.querySelector(`div[row='${r}'][col='${c}']`).style.backgroundColor="white";
+                        document.querySelector(`div[row='${r}'][col='${c}']`).innerHTML='';
                         
                     }else if(arr[r][c]==-1){
                         let img=document.createElement("img");
@@ -115,6 +112,7 @@ function dfs(arr,row,col,visited){
                     }
                     else{
                         document.querySelector(`div[row='${r}'][col='${c}']`).innerHTML=arr[r][c];
+                        document.querySelector(`div[row='${r}'][col='${c}']`).style.opacity="1"
                         document.querySelector(`div[row='${r}'][col='${c}']`).style.backgroundColor="white";
                 
                     }
@@ -132,7 +130,7 @@ function callBack(event){
     //alert(event.target.outerHTML);
     event.target.style.backgroundColor="white";
     //console.log(arr);
-    console.log(arr[r][c])
+    //console.log(arr[r][c])
     if(arr[r][c]==-1){
 
         let itr=set.entries();
@@ -147,14 +145,18 @@ function callBack(event){
                 img.src="./bomb.png";
                 ele.appendChild(img);
          }
+
+         alert("Game Over");
+         return;
          
 
     }else if(arr[r][c]!=0){
         event.target.innerHTML=arr[r][c];
+        event.target.style.opacity="1";
     }else{
-        let visited= new Array(m);
-        for(let i=0;i<m;i++){
-            visited[i]= new Array(m).fill(false);
+        let visited= new Array(grid);
+        for(let i=0;i<grid;i++){
+            visited[i]= new Array(grid).fill(false);
 
         }
         
@@ -165,14 +167,37 @@ function callBack(event){
     event.target.removeAttribute("onclick");
 
     let temp = document.querySelectorAll(`div[style*=green]`);
-    if(temp.length == n)
+    if(temp.length <= bombs)
     {
         alert("You won the game!");
 
     }
+    
 }
 
-// document.querySelector(".cell").addEventListener("click",(event)=>{
-    
+// window.oncontextmenu = (e) => {
+//     e.preventDefault()
+//     console.log('right clicked')
+//   }
 
-// })
+function flag(){
+    
+document.querySelectorAll(".cell").forEach((cell)=>{
+    cell.addEventListener("contextmenu",(event)=>{
+        event.preventDefault();
+        if(event.target.getAttribute("flag")=="false"){
+            let img=document.createElement("img");
+            img.src="./red-flag.png";
+            event.target.style.opacity="1";
+            img.style.opacity="1";
+            event.target.appendChild(img);
+            event.target.style.backgroundColor="white"
+            //event.target.setAttribute("flag","true");
+        }else{
+            event.target.innerHTML='';
+            event.target.setAttribute("flag","false");
+        }
+        return false;
+    },false);
+})
+}

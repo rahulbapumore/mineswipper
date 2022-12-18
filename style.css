@@ -12,6 +12,10 @@ body{
     height: 100vh;
 }
 
+.game{
+    padding: 10px;
+}
+
 
 .header{
     display: flex;
@@ -25,8 +29,8 @@ body{
     flex-direction: row;
 }
 img{
-    width: 30px;
-    height: 30px;
+    width: 100%;
+    height: 100%;
 }
 .cell{
     height: 40px;
@@ -38,15 +42,12 @@ img{
     font-size: 30px;
 }
 
-#select
-{
+.menu{
     padding: 2px;
     margin: 2px;
     width: 100%;
-    
     display: flex;
     justify-content: space-between;
-    
 }
 
 select,button
